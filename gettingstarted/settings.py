@@ -38,7 +38,7 @@ if IS_HEROKU:
 else:
     ALLOWED_HOSTS = ["0.0.0.0', 'localhost'"]
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug turned on in production! This is so dumb why did i do this.
 if not IS_HEROKU:
     DEBUG = True
 
