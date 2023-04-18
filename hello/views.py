@@ -1,8 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import requests
-
 from .models import Greeting
+from .tasks import test_func
+
+def test(request):
+    test_func.delay()
+    return HttpResponse('Done')
 
 def index(request):
     # return HttpResponse('Hello from Python!')
