@@ -4,3 +4,7 @@ dj-database-url>=1.0,<2.0
 whitenoise>=6.0,<7.0
 psycopg2>=2.0,<3.0
 requests
+django-celery-beat 
+django-celery-results # currently requires Django 4.0 or older
+python-decouple #replaces 'decouple'
+redis

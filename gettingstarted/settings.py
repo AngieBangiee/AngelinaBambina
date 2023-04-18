@@ -14,6 +14,7 @@ import dj_database_url
 import os
 from django.test.runner import DiscoverRunner
 from pathlib import Path
+from decouple import config
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -39,8 +40,9 @@ else:
     ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
 # SECURITY WARNING: don't run with debug turned on in production! This is so dumb why did i do this.
-if not IS_HEROKU:
-    DEBUG = True
+if not IS_HEROKU: 
+  #DEBUG = True
+  DEBUG = config("DEBUG", default=0) #Added this with celery redis tutorial
 
 # Application definition
 
@@ -52,6 +54,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "hello",
+    'celery',
+    'django_celery_beat',
+    'django_celery_results',
+    'wheel',
+    'movies',
 ]
 
 MIDDLEWARE = [
@@ -163,10 +170,32 @@ if "CI" in os.environ:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CELERY SETTINGS
+# CELERY SETTINGS ===========================================================================
+REDIS_TLS_URL = 'rediss://:p56b39cd4d6927e963837e514cf46d81f519ac182c9f9c32535ccf6fe2f52e3ca@ec2-54-147-148-138.compute-1.amazonaws.com:28980'
+REDIS_URL = 'redis://:p56b39cd4d6927e963837e514cf46d81f519ac182c9f9c32535ccf6fe2f52e3ca@ec2-54-147-148-138.compute-1.amazonaws.com:28979'
+#CELERY_BROKER_URL = 'redis://127.0.0.1:6379' #from local tutorial/test
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'America/New_York'
+# CELERY_ACCEPT_CONTENT = ['application/json'] #from youtube video
+# CELERY_RESULT_SERIALIZER = 'json' #from youtube video
+# #  
+# CELERY_TASK_SERIALIZER = 'json' #from youtube video
+# CELERY_TIMEZONE = 'America/New_York' #from youtube video
+
+# save Celery task results in Django's database
+CELERY_RESULT_BACKEND = "django-db"
+
+# This configures Redis as the datastore between Django + Celery
+CELERY_BROKER_URL = config('CELERY_BROKER_REDIS_URL', default='redis://localhost:6379')
+# if you out to use os.environ the config is:
+# CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_REDIS_URL', 'redis://localhost:6379')
+
+
+# this allows you to schedule items in the Django admin.
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+#Stuff for python-decouple that was listed in the docs. not sure its needed
+# SECRET_KEY = config('SECRET_KEY')
+# DEBUG = config('DEBUG', default=False, cast=bool)
+# EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+# EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
+
+# CELERY SETTINGS ===========================================================================
